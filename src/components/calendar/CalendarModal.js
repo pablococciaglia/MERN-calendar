@@ -101,7 +101,7 @@ export const CalendarModal = () => {
                 }
             })
         }
-    }, [setFormValues, activeEvent])
+    }, [setFormValues, activeEvent, dateStart, dateEnd])
         
     const handleSubmit = (e) => {
         const momentStart = moment(start);

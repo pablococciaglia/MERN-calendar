@@ -1,24 +1,49 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
   Redirect
 } from "react-router-dom";
+import { authCheckingStart } from "../actions/auth";
 import { LoginScreen } from "../components/auth/LoginScreen";
 import { CalendarScreen } from "../components/calendar/CalendarScreen"
+import { PrivateRoute } from "./PrivateRoute";
+import { PublicRoute } from "./PublicRoute";
 
 export const AppRouter = () => {
+    const dispatch = useDispatch()
+    const { checking, uid } = useSelector( state => state.auth )
+
+    useEffect(() => {
+        
+        dispatch( authCheckingStart() )
+        
+    }, [dispatch])
+
+    if (checking) 
+    {return (<h1>is loading...</h1>)};
+
     return (
         <Router>
             <div>
                 <Switch>
 
-                    <Route exact path="/" component={ CalendarScreen } />   
+                    <PublicRoute  
+                        exact 
+                        path="/login" 
+                        component={ LoginScreen } 
+                        isAuthenticated= { !!uid }
+                    />
                     
-                    <Route exact path="/login" component={ LoginScreen } />
+                    <PrivateRoute 
+                        exact 
+                        path="/" 
+                        component={ CalendarScreen } 
+                        isAuthenticated= { !!uid }
+                    />   
 
-                    <Redirect to="/" />
+                    <Redirect to="/login" />
                     
                 </Switch>
             </div>
