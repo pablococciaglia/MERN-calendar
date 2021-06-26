@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import moment from 'moment'
 import 'moment/locale/es' //importacion para pasarlo a español
@@ -12,7 +12,7 @@ import { CalendarEvent } from './CalendarEvent'
 import { CalendarModal } from './CalendarModal'
 import { useDispatch, useSelector } from 'react-redux';
 import { uiOpenModal } from '../../actions/ui';
-import { eventClearActiveEvent, eventSetActive } from '../../actions/events';
+import { eventClearActiveEvent, eventSetActive, eventStartLoadingEvents } from '../../actions/events';
 import {DeleteEventFab} from '../ui/DeleteEventFab'
 import {AddNewFab} from '../ui/AddNewFab'
 
@@ -20,26 +20,32 @@ moment.locale('es'); //metodo para pasar el idioma de moment al español
 
 const localizer = momentLocalizer(moment);
 
-const eventStyleGetter = ( event, start, end, isSelected )=>{ //da el estilo a cada etiqueta con las actividades
-    const style = {
-        backgroundColor: '#367cf7',
-        borderRadius: '0px',
-        opacity: 0.8,
-        display: 'block',
-        color: 'white'
-
-    }
-
-    return {
-        style
-    }
-};
-
 export const CalendarScreen = () => {
 
+    const {uid} = useSelector (state => state.auth)
+
+    const eventStyleGetter = ( event, start, end, isSelected )=>{ //da el estilo a cada etiqueta con las actividades
+        const style = {
+            backgroundColor: (uid === event.user._id) ? '#367CF7' : '#465660',
+            borderRadius: '0px',
+            opacity: 0.8,
+            display: 'block',
+            color: 'white'
+    
+        }
+    
+        return {
+            style
+        }
+    };
+    
     const dispatch = useDispatch()
 
     const [lastView, setlastView] = useState( localStorage.getItem('lastView') || 'month' ); // maneja cual fue la ultima vista utilizada
+
+    useEffect(() => {
+        dispatch( eventStartLoadingEvents() )
+    }, [ dispatch ])
 
     const onDoubleClickEvent = (e) => {
         dispatch( uiOpenModal() )
